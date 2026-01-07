@@ -14,8 +14,8 @@ services:
       context: ./consumer-a
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm}
     environment:
-      QUARKUS_RABBITMQ_HOST: rabbit
-      QUARKUS_RABBITMQ_PORT: 5672
+      RABBITMQ_HOST: rabbit
+      RABBITMQ_PORT: 5672
     ports:
       - "8080:8080"
     depends_on:
@@ -28,8 +28,8 @@ services:
       context: ./consumer-b
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm}
     environment:
-      QUARKUS_RABBITMQ_HOST: rabbit
-      QUARKUS_RABBITMQ_PORT: 5672
+      RABBITMQ_HOST: rabbit
+      RABBITMQ_PORT: 5672
     depends_on:
       - rabbit
     networks:
