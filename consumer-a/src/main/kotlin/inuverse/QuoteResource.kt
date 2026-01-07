@@ -14,9 +14,9 @@ import java.util.UUID
 
 @Path("/quotes") // このクラス全体の親パスを定義。よって http://localhost:8080/quotes のように始まる
 class QuoteResource(
-    @Channel("quote-requests")
+    @param:Channel("quote-requests")
     private val quoteRequestEmitter: Emitter<String>,
-    @Channel("quotes")
+    @param:Channel("quotes")
     private val quotes: Multi<Quote>
 ) {
     private val log = Logger.getLogger(this::class.java)
