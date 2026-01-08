@@ -1,22 +1,32 @@
 package inuverse
 
-import io.quarkus.runtime.ShutdownEvent
-import io.quarkus.runtime.StartupEvent
+import io.minio.MinioClient
 import jakarta.enterprise.context.ApplicationScoped
-import jakarta.enterprise.event.Observes
+import org.eclipse.microprofile.reactive.messaging.Incoming
 import org.jboss.logging.Logger
 
 @ApplicationScoped
-class JetStreamListener {
+class JetStreamListener(
+    private val minioClient: MinioClient
+) {
 
     private val log = Logger.getLogger(this::class.java)
 
-    fun onStart(@Observes staruptEvent: StartupEvent) {
-        log.info("JetStreamListener is starting...")
-    }
+    @Incoming("minio-events")
+    fun process(event: MinioEvent) {
+        log.info("Received event from MinIO: $event")
+        
+        // Key might be "stock-data/filename.gz"
+        val fullKey = event.key
+        if (fullKey.isNullOrBlank()) {
+            log.warn("Key is null or empty, skipping.")
+            return
+        }
 
-    fun onStop(@Observes shutdownEvent: ShutdownEvent) {
-        log.info("JetStreamListener is being shutdown...")
+        // 簡易的な処理: ファイル名のみ抽出
+        val fileName = fullKey.substringAfterLast("/")
+        log.info("Detected file upload: $fileName (Full Key: $fullKey)")
+        
+        // TODO: ここでMinIOからダウンロード処理を行う
     }
-
 }
