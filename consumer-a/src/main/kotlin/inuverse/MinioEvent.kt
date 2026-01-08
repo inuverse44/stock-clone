@@ -8,4 +8,3 @@ data class MinioEvent(
     @param:JsonProperty("Key") val key: String?,
     @param:JsonProperty("EventName") val eventName: String?
 )
-
