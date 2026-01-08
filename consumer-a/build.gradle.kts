@@ -14,15 +14,27 @@ val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
 
 dependencies {
-    implementation("io.quarkiverse.reactivemessaging.nats-jetstream:quarkus-messaging-nats-jetstream:3.30.0")
-    implementation("io.quarkiverse.minio:quarkus-minio:3.8.6")
-    implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
+    implementation(enforcedPlatform(
+        "${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"
+    ))
+
+    // NATS Core
+    implementation("io.quarkiverse.reactive-messaging:quarkus-reactive-messaging-nats")
+
+    // MinIO
+    implementation("io.quarkiverse.minio:quarkus-minio")
+
+    // Quarkus 基本
     implementation("io.quarkus:quarkus-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.quarkus:quarkus-arc")
     implementation("io.quarkus:quarkus-rest")
     implementation("io.quarkus:quarkus-rest-jackson")
+
+    // RabbitMQ
     implementation("io.quarkus:quarkus-messaging-rabbitmq")
+
+    // Test
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
 }
