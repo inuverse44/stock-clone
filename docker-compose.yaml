@@ -27,7 +27,7 @@ services:
       # NATS Notification Configuration
       MINIO_NOTIFY_NATS_ENABLE_PRIMARY: "on"
       MINIO_NOTIFY_NATS_ADDRESS_PRIMARY: "nats:4222"
-      MINIO_NOTIFY_NATS_SUBJECT_PRIMARY: "minio_events"
+      MINIO_NOTIFY_NATS_SUBJECT_PRIMARY: "minio-events"
       MINIO_NOTIFY_NATS_FORMAT_PRIMARY: "access"
     ports:
       - "9000:9000"
