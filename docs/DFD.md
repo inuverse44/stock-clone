@@ -31,13 +31,19 @@ flowchart TB
     CB[Consumer B<br/>Workers]
 
     %% =====================
+    %% Downstream Consumers
+    %% =====================
+    DB[(DB)]
+
+    %% =====================
     %% Data Flow
     %% =====================
     LG -->|Object Upload| MINIO
     MINIO -->|ObjectCreated Event| NATS
     NATS -->|Pull + ACK| CA
-    CA -->|Download Object| MINIO
+    MINIO -->|Download Object| CA
     CA -->|Enqueue Chunks| RMQ
     RMQ --> CB
+    CB -->|Persist| DB
 
 ```

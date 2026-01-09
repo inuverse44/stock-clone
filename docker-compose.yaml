@@ -9,6 +9,49 @@ services:
     networks:
       - rabbitmq-network
 
+  nats:
+    image: nats:latest
+    command: "-js"
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    networks:
+      - rabbitmq-network
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+
+      # Core NATS notification (NOT JetStream)
+      MINIO_NOTIFY_NATS_ENABLE_PRIMARY: "on"
+      MINIO_NOTIFY_NATS_ADDRESS_PRIMARY: "nats:4222"
+      MINIO_NOTIFY_NATS_SUBJECT_PRIMARY: "minio-events"
+      MINIO_NOTIFY_NATS_FORMAT_PRIMARY: "access"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    depends_on:
+      - nats
+    networks:
+      - rabbitmq-network
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until (mc alias set myminio http://minio:9000 minioadmin minioadmin); do sleep 1; done;
+      mc mb -p myminio/stock-data;
+      mc event add myminio/stock-data arn:minio:sqs::PRIMARY:nats --event put;
+      exit 0;
+      "
+    networks:
+      - rabbitmq-network
+
   consumer-a:
     build:
       context: ./consumer-a
@@ -16,10 +59,15 @@ services:
     environment:
       RABBITMQ_HOST: rabbit
       RABBITMQ_PORT: 5672
-    ports:
-      - "8080:8080"
+
+      # ★ NATS / JetStream
+      NATS_HOST: nats
+      NATS_PORT: 4222
     depends_on:
       - rabbit
+      - nats
+    ports:
+      - "8080:8080"
     networks:
       - rabbitmq-network
 
@@ -30,8 +78,13 @@ services:
     environment:
       RABBITMQ_HOST: rabbit
       RABBITMQ_PORT: 5672
+
+      # ★ NATS / JetStream
+      NATS_HOST: nats
+      NATS_PORT: 4222
     depends_on:
       - rabbit
+      - nats
     networks:
       - rabbitmq-network
 
